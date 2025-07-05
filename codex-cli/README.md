@@ -1,10 +1,11 @@
-<h1 align="center">OpenAI Codex CLI</h1>
+<h1 align="center">Codex CLI</h1>
 <p align="center">Lightweight coding agent that runs in your terminal</p>
 
-<p align="center"><code>npm i -g @openai/codex</code></p>
+<p align="center"><code>npm i -g @hebinho29/codex</code></p>
 
-> [!IMPORTANT]
-> This is the documentation for the _legacy_ TypeScript implementation of the Codex CLI. It has been superseded by the _Rust_ implementation. See the [README in the root of the Codex repository](https://github.com/openai/codex/blob/main/README.md) for details.
+> [!NOTE]
+> Esta é uma versão customizada do Codex CLI configurada para funcionar com Azure OpenAI. 
+> A versão oficial pode ser encontrada em [@openai/codex](https://github.com/openai/codex).
 
 ![Codex demo GIF using: codex "explain this codebase to me"](../.github/demo.gif)
 
@@ -77,31 +78,49 @@ Help us improve by filing issues or submitting PRs (see the section below for ho
 Install globally:
 
 ```shell
-npm install -g @openai/codex
+npm install -g @hebinho29/codex
 ```
 
-Next, set your OpenAI API key as an environment variable:
+### Configuração com Azure OpenAI
+
+Este pacote está configurado para funcionar com Azure OpenAI. Configure as seguintes variáveis de ambiente:
 
 ```shell
-export OPENAI_API_KEY="your-api-key-here"
+export AZURE_OPENAI_API_KEY="sua-chave-api-azure-aqui"
+export AZURE_OPENAI_API_VERSION="2025-04-01-preview"
+export AZURE_OPENAI_MODEL="codex-mini"
+export AZURE_OPENAI_BASE_URL="https://sua-instancia.cognitiveservices.azure.com/openai"
 ```
 
-> **Note:** This command sets the key only for your current terminal session. You can add the `export` line to your shell's configuration file (e.g., `~/.zshrc`) but we recommend setting for the session. **Tip:** You can also place your API key into a `.env` file at the root of your project:
->
-> ```env
-> OPENAI_API_KEY=your-api-key-here
-> ```
->
-> The CLI will automatically load variables from `.env` (via `dotenv/config`).
+> **Nota:** Substitua `sua-chave-api-azure-aqui` pela sua chave API do Azure OpenAI e `sua-instancia` pelo nome da sua instância do Azure Cognitive Services.
+
+Alternativamente, você pode criar um arquivo `.env` na raiz do seu projeto:
+
+```env
+AZURE_OPENAI_API_KEY=sua-chave-api-azure-aqui
+AZURE_OPENAI_API_VERSION=2025-04-01-preview
+AZURE_OPENAI_MODEL=codex-mini
+AZURE_OPENAI_BASE_URL=https://sua-instancia.cognitiveservices.azure.com/openai
+```
+
+O CLI carregará automaticamente as variáveis do arquivo `.env`.
+
+### Configuração adicional (opcional)
+
+Para usar outros provedores além do Azure OpenAI, você pode configurar o provider:
+
+```shell
+codex --provider azure "seu prompt aqui"
+```
 
 <details>
-<summary><strong>Use <code>--provider</code> to use other models</strong></summary>
+<summary><strong>Use <code>--provider</code> para usar outros modelos</strong></summary>
 
-> Codex also allows you to use other providers that support the OpenAI Chat Completions API. You can set the provider in the config file or use the `--provider` flag. The possible options for `--provider` are:
+> Codex também permite usar outros provedores que suportam a API OpenAI Chat Completions. Você pode definir o provedor no arquivo de configuração ou usar a flag `--provider`. As opções possíveis para `--provider` são:
 >
-> - openai (default)
+> - azure (padrão para esta versão)
+> - openai
 > - openrouter
-> - azure
 > - gemini
 > - ollama
 > - mistral
@@ -109,18 +128,18 @@ export OPENAI_API_KEY="your-api-key-here"
 > - xai
 > - groq
 > - arceeai
-> - any other provider that is compatible with the OpenAI API
+> - qualquer outro provedor compatível com a API OpenAI
 >
-> If you use a provider other than OpenAI, you will need to set the API key for the provider in the config file or in the environment variable as:
+> Se usar um provedor diferente do Azure, você precisará definir a chave API do provedor no arquivo de configuração ou na variável de ambiente como:
 >
 > ```shell
-> export <provider>_API_KEY="your-api-key-here"
+> export <provider>_API_KEY="sua-chave-api-aqui"
 > ```
 >
-> If you use a provider not listed above, you must also set the base URL for the provider:
+> Se usar um provedor não listado acima, você também deve definir a URL base do provedor:
 >
 > ```shell
-> export <provider>_BASE_URL="https://your-provider-api-base-url"
+> export <provider>_BASE_URL="https://url-base-da-api-do-seu-provedor"
 > ```
 
 </details>
@@ -142,24 +161,26 @@ codex "explain this codebase to me"
 codex --approval-mode full-auto "create the fanciest todo-list app"
 ```
 
+> **💡 Dica para Azure OpenAI:** Se você estiver usando Azure OpenAI, certifique-se de que o modelo especificado em `AZURE_OPENAI_MODEL` está disponível na sua instância do Azure.
+
 That's it - Codex will scaffold a file, run it inside a sandbox, install any
 missing dependencies, and show you the live result. Approve the changes and
 they'll be committed to your working directory.
 
 ---
 
-## Why Codex?
+## Por que Codex?
 
-Codex CLI is built for developers who already **live in the terminal** and want
-ChatGPT-level reasoning **plus** the power to actually run code, manipulate
-files, and iterate - all under version control. In short, it's _chat-driven
-development_ that understands and executes your repo.
+Codex CLI é construído para desenvolvedores que já **vivem no terminal** e querem
+raciocínio no nível do ChatGPT **mais** o poder de realmente executar código, manipular
+arquivos e iterar - tudo sob controle de versão. Em resumo, é _desenvolvimento orientado por chat_
+que entende e executa seu repositório.
 
-- **Zero setup** - bring your OpenAI API key and it just works!
-- **Full auto-approval, while safe + secure** by running network-disabled and directory-sandboxed
-- **Multimodal** - pass in screenshots or diagrams to implement features ✨
+- **Zero configuração** - traga sua chave API do Azure OpenAI e funciona!
+- **Aprovação automática completa, mantendo segurança** executando com rede desabilitada e em sandbox de diretório
+- **Multimodal** - passe screenshots ou diagramas para implementar recursos ✨
 
-And it's **fully open-source** so you can see and contribute to how it develops!
+E é **totalmente open-source** para que você possa ver e contribuir para como ele se desenvolve!
 
 ---
 
@@ -248,8 +269,11 @@ Run Codex head-less in pipelines. Example GitHub Action step:
 ```yaml
 - name: Update changelog via Codex
   run: |
-    npm install -g @openai/codex
-    export OPENAI_API_KEY="${{ secrets.OPENAI_KEY }}"
+    npm install -g @hebinho29/codex
+    export AZURE_OPENAI_API_KEY="${{ secrets.AZURE_OPENAI_API_KEY }}"
+    export AZURE_OPENAI_API_VERSION="2025-04-01-preview"
+    export AZURE_OPENAI_MODEL="codex-mini"
+    export AZURE_OPENAI_BASE_URL="${{ secrets.AZURE_OPENAI_BASE_URL }}"
     codex -a auto-edit --quiet "update CHANGELOG for next release"
 ```
 
@@ -284,16 +308,16 @@ Below are a few bite-size examples you can copy-paste. Replace the text in quote
 ## Installation
 
 <details open>
-<summary><strong>From npm (Recommended)</strong></summary>
+<summary><strong>Do npm (Recomendado)</strong></summary>
 
 ```bash
-npm install -g @openai/codex
-# or
-yarn global add @openai/codex
-# or
-bun install -g @openai/codex
-# or
-pnpm add -g @openai/codex
+npm install -g @hebinho29/codex
+# ou
+yarn global add @hebinho29/codex
+# ou
+bun install -g @hebinho29/codex
+# ou
+pnpm add -g @hebinho29/codex
 ```
 
 </details>
@@ -338,7 +362,8 @@ Codex configuration files can be placed in the `~/.codex/` directory, supporting
 
 | Parameter           | Type    | Default    | Description                      | Available Options                                                                              |
 | ------------------- | ------- | ---------- | -------------------------------- | ---------------------------------------------------------------------------------------------- |
-| `model`             | string  | `o4-mini`  | AI model to use                  | Any model name supporting OpenAI API                                                           |
+| `model`             | string  | `codex-mini`  | AI model to use                  | Any model name supporting OpenAI API                                                           |
+| `provider`          | string  | `azure`    | AI provider to use               | `azure`, `openai`, `openrouter`, `gemini`, etc.                                                |
 | `approvalMode`      | string  | `suggest`  | AI assistant's permission mode   | `suggest` (suggestions only)<br>`auto-edit` (automatic edits)<br>`full-auto` (fully automatic) |
 | `fullAutoErrorMode` | string  | `ask-user` | Error handling in full-auto mode | `ask-user` (prompt for user input)<br>`ignore-and-continue` (ignore and proceed)               |
 | `notify`            | boolean | `true`     | Enable desktop notifications     | `true`/`false`                                                                                 |
@@ -368,7 +393,8 @@ In the `history` object, you can configure conversation history settings:
 1. YAML format (save as `~/.codex/config.yaml`):
 
 ```yaml
-model: o4-mini
+model: codex-mini
+provider: azure
 approvalMode: suggest
 fullAutoErrorMode: ask-user
 notify: true
@@ -378,7 +404,8 @@ notify: true
 
 ```json
 {
-  "model": "o4-mini",
+  "model": "codex-mini",
+  "provider": "azure",
   "approvalMode": "suggest",
   "fullAutoErrorMode": "ask-user",
   "notify": true
@@ -391,18 +418,18 @@ Below is a comprehensive example of `config.json` with multiple custom providers
 
 ```json
 {
-  "model": "o4-mini",
-  "provider": "openai",
+  "model": "codex-mini",
+  "provider": "azure",
   "providers": {
+    "azure": {
+      "name": "AzureOpenAI",
+      "baseURL": "https://SUA_INSTANCIA.cognitiveservices.azure.com/openai",
+      "envKey": "AZURE_OPENAI_API_KEY"
+    },
     "openai": {
       "name": "OpenAI",
       "baseURL": "https://api.openai.com/v1",
       "envKey": "OPENAI_API_KEY"
-    },
-    "azure": {
-      "name": "AzureOpenAI",
-      "baseURL": "https://YOUR_PROJECT_NAME.openai.azure.com/openai",
-      "envKey": "AZURE_OPENAI_API_KEY"
     },
     "openrouter": {
       "name": "OpenRouter",
@@ -464,25 +491,43 @@ You can create a `~/.codex/AGENTS.md` file to define custom guidance for the age
 
 ### Environment variables setup
 
-For each AI provider, you need to set the corresponding API key in your environment variables. For example:
+Para cada provedor de IA, você precisa definir a chave API correspondente nas suas variáveis de ambiente. Por exemplo:
 
 ```bash
-# OpenAI
-export OPENAI_API_KEY="your-api-key-here"
+# Azure OpenAI (padrão)
+export AZURE_OPENAI_API_KEY="sua-chave-azure-api-aqui"
+export AZURE_OPENAI_API_VERSION="2025-04-01-preview"
+export AZURE_OPENAI_MODEL="codex-mini"
+export AZURE_OPENAI_BASE_URL="https://sua-instancia.cognitiveservices.azure.com/openai"
 
-# Azure OpenAI
-export AZURE_OPENAI_API_KEY="your-azure-api-key-here"
-export AZURE_OPENAI_API_VERSION="2025-04-01-preview" (Optional)
+# OpenAI
+export OPENAI_API_KEY="sua-chave-api-aqui"
 
 # OpenRouter
-export OPENROUTER_API_KEY="your-openrouter-key-here"
+export OPENROUTER_API_KEY="sua-chave-openrouter-aqui"
 
-# Similarly for other providers
+# Similarmente para outros provedores
 ```
 
 ---
 
 ## FAQ
+
+<details>
+<summary>Como configurar para usar Azure OpenAI?</summary>
+
+Esta versão está pré-configurada para usar Azure OpenAI. Configure as seguintes variáveis de ambiente:
+
+```bash
+export AZURE_OPENAI_API_KEY="sua-chave-api-azure"
+export AZURE_OPENAI_API_VERSION="2025-04-01-preview"
+export AZURE_OPENAI_MODEL="codex-mini"
+export AZURE_OPENAI_BASE_URL="https://sua-instancia.cognitiveservices.azure.com/openai"
+```
+
+Certifique-se de que o modelo especificado está disponível na sua instância do Azure.
+
+</details>
 
 <details>
 <summary>OpenAI released a model called Codex in 2021 - is this related?</summary>
