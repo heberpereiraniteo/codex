@@ -1,9 +1,9 @@
 {
-  "name": "@hebinho29/codex",
-  "version": "1.0.1",
+  "name": "@niteotech/code",
+  "version": "0.0.1",
   "license": "Apache-2.0",
   "bin": {
-    "codex": "bin/codex.js"
+    "niteo-code": "bin/codex.js"
   },
   "type": "module",
   "engines": {

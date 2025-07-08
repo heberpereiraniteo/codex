@@ -1,13 +1,7 @@
-<h1 align="center">Codex CLI</h1>
+<h1 align="center">Niteo Code CLI</h1>
 <p align="center">Lightweight coding agent that runs in your terminal</p>
 
-<p align="center"><code>npm i -g @hebinho29/codex</code></p>
-
-> [!NOTE]
-> Esta é uma versão customizada do Codex CLI configurada para funcionar com Azure OpenAI. 
-> A versão oficial pode ser encontrada em [@openai/codex](https://github.com/openai/codex).
-
-![Codex demo GIF using: codex "explain this codebase to me"](../.github/demo.gif)
+<p align="center"><code>npm i -g @niteotech/code</code></p>
 
 ---
 
@@ -78,7 +72,7 @@ Help us improve by filing issues or submitting PRs (see the section below for ho
 Install globally:
 
 ```shell
-npm install -g @hebinho29/codex
+npm install -g @niteotech/code
 ```
 
 ### Configuração com Azure OpenAI
@@ -110,7 +104,7 @@ O CLI carregará automaticamente as variáveis do arquivo `.env`.
 Para usar outros provedores além do Azure OpenAI, você pode configurar o provider:
 
 ```shell
-codex --provider azure "seu prompt aqui"
+niteo-code --provider azure "seu prompt aqui"
 ```
 
 <details>
@@ -148,17 +142,17 @@ codex --provider azure "seu prompt aqui"
 Run interactively:
 
 ```shell
-codex
+niteo-code
 ```
 
 Or, run with a prompt as input (and optionally in `Full Auto` mode):
 
 ```shell
-codex "explain this codebase to me"
+niteo-code "explain this codebase to me"
 ```
 
 ```shell
-codex --approval-mode full-auto "create the fanciest todo-list app"
+niteo-code --approval-mode full-auto "create the fanciest todo-list app"
 ```
 
 > **💡 Dica para Azure OpenAI:** Se você estiver usando Azure OpenAI, certifique-se de que o modelo especificado em `AZURE_OPENAI_MODEL` está disponível na sua instância do Azure.
@@ -241,10 +235,10 @@ The hardening mechanism Codex uses depends on your OS:
 
 | Command                              | Purpose                             | Example                              |
 | ------------------------------------ | ----------------------------------- | ------------------------------------ |
-| `codex`                              | Interactive REPL                    | `codex`                              |
-| `codex "..."`                        | Initial prompt for interactive REPL | `codex "fix lint errors"`            |
-| `codex -q "..."`                     | Non-interactive "quiet mode"        | `codex -q --json "explain utils.ts"` |
-| `codex completion <bash\|zsh\|fish>` | Print shell completion script       | `codex completion bash`              |
+| `niteo-code`                         | Interactive REPL                    | `niteo-code`                         |
+| `niteo-code "..."`                   | Initial prompt for interactive REPL | `niteo-code "fix lint errors"`      |
+| `niteo-code -q "..."`                | Non-interactive "quiet mode"        | `niteo-code -q --json "explain utils.ts"` |
+| `niteo-code completion <bash\|zsh\|fish>` | Print shell completion script       | `niteo-code completion bash`         |
 
 Key flags: `--model/-m`, `--approval-mode/-a`, `--quiet/-q`, and `--notify`.
 
@@ -269,12 +263,12 @@ Run Codex head-less in pipelines. Example GitHub Action step:
 ```yaml
 - name: Update changelog via Codex
   run: |
-    npm install -g @hebinho29/codex
+    npm install -g @niteotech/code
     export AZURE_OPENAI_API_KEY="${{ secrets.AZURE_OPENAI_API_KEY }}"
     export AZURE_OPENAI_API_VERSION="2025-04-01-preview"
     export AZURE_OPENAI_MODEL="codex-mini"
     export AZURE_OPENAI_BASE_URL="${{ secrets.AZURE_OPENAI_BASE_URL }}"
-    codex -a auto-edit --quiet "update CHANGELOG for next release"
+    niteo-code -a auto-edit --quiet "update CHANGELOG for next release"
 ```
 
 Set `CODEX_QUIET_MODE=1` to silence interactive UI noise.
@@ -284,7 +278,7 @@ Set `CODEX_QUIET_MODE=1` to silence interactive UI noise.
 Setting the environment variable `DEBUG=true` prints full API request and response details:
 
 ```shell
-DEBUG=true codex
+DEBUG=true niteo-code
 ```
 
 ---
@@ -295,13 +289,13 @@ Below are a few bite-size examples you can copy-paste. Replace the text in quote
 
 | ✨  | What you type                                                                   | What happens                                                               |
 | --- | ------------------------------------------------------------------------------- | -------------------------------------------------------------------------- |
-| 1   | `codex "Refactor the Dashboard component to React Hooks"`                       | Codex rewrites the class component, runs `npm test`, and shows the diff.   |
-| 2   | `codex "Generate SQL migrations for adding a users table"`                      | Infers your ORM, creates migration files, and runs them in a sandboxed DB. |
-| 3   | `codex "Write unit tests for utils/date.ts"`                                    | Generates tests, executes them, and iterates until they pass.              |
-| 4   | `codex "Bulk-rename *.jpeg -> *.jpg with git mv"`                               | Safely renames files and updates imports/usages.                           |
-| 5   | `codex "Explain what this regex does: ^(?=.*[A-Z]).{8,}$"`                      | Outputs a step-by-step human explanation.                                  |
-| 6   | `codex "Carefully review this repo, and propose 3 high impact well-scoped PRs"` | Suggests impactful PRs in the current codebase.                            |
-| 7   | `codex "Look for vulnerabilities and create a security review report"`          | Finds and explains security bugs.                                          |
+| 1   | `niteo-code "Refactor the Dashboard component to React Hooks"`                 | Codex rewrites the class component, runs `npm test`, and shows the diff.   |
+| 2   | `niteo-code "Generate SQL migrations for adding a users table"`                | Infers your ORM, creates migration files, and runs them in a sandboxed DB. |
+| 3   | `niteo-code "Write unit tests for utils/date.ts"`                              | Generates tests, executes them, and iterates until they pass.              |
+| 4   | `niteo-code "Bulk-rename *.jpeg -> *.jpg with git mv"`                         | Safely renames files and updates imports/usages.                           |
+| 5   | `niteo-code "Explain what this regex does: ^(?=.*[A-Z]).{8,}$"`                | Outputs a step-by-step human explanation.                                  |
+| 6   | `niteo-code "Carefully review this repo, and propose 3 high impact well-scoped PRs"` | Suggests impactful PRs in the current codebase.                            |
+| 7   | `niteo-code "Look for vulnerabilities and create a security review report"`    | Finds and explains security bugs.                                          |
 
 ---
 
@@ -311,13 +305,13 @@ Below are a few bite-size examples you can copy-paste. Replace the text in quote
 <summary><strong>Do npm (Recomendado)</strong></summary>
 
 ```bash
-npm install -g @hebinho29/codex
+npm install -g @niteotech/code
 # ou
-yarn global add @hebinho29/codex
+yarn global add @niteotech/code
 # ou
-bun install -g @hebinho29/codex
+bun install -g @niteotech/code
 # ou
-pnpm add -g @hebinho29/codex
+pnpm add -g @niteotech/code
 ```
 
 </details>
@@ -647,7 +641,7 @@ To debug the CLI with a visual debugger, do the following in the `codex-cli` fol
 
 1. **Start with an issue.** Open a new one or comment on an existing discussion so we can agree on the solution before code is written.
 2. **Add or update tests.** Every new feature or bug-fix should come with test coverage that fails before your change and passes afterwards. 100% coverage is not required, but aim for meaningful assertions.
-3. **Document behaviour.** If your change affects user-facing behaviour, update the README, inline help (`codex --help`), or relevant example projects.
+3. **Document behaviour.** If your change affects user-facing behaviour, update the README, inline help (`niteo-code --help`), or relevant example projects.
 4. **Keep commits atomic.** Each commit should compile and the tests should pass. This makes reviews and potential rollbacks easier.
 
 ### Opening a pull request
@@ -738,7 +732,7 @@ nix develop .#codex-cli # For entering codex-cli specific shell
 nix develop .#codex-rs # For entering codex-rs specific shell
 ```
 
-This shell includes Node.js, installs dependencies, builds the CLI, and provides a `codex` command alias.
+This shell includes Node.js, installs dependencies, builds the CLI, and provides a `niteo-code` command alias.
 
 Build and run the CLI directly:
 
@@ -746,7 +740,7 @@ Build and run the CLI directly:
 # Use either one of the commands according to which implementation you want to work with
 nix build .#codex-cli # For building codex-cli
 nix build .#codex-rs # For building codex-rs
-./result/bin/codex --help
+./result/bin/niteo-code --help
 ```
 
 Run the CLI via the flake app:
