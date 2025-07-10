@@ -138,8 +138,8 @@ impl HistoryCell {
 
             let mut lines: Vec<Line<'static>> = vec![
                 Line::from(vec![
-                    "OpenAI ".into(),
-                    "Codex".bold(),
+                    "Niteo ".into(),
+                    "Code CLI".bold(),
                     format!(" v{}", VERSION).into(),
                     " (research preview)".dim(),
                 ]),
