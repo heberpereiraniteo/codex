@@ -1,6 +1,6 @@
 name: "build-codex-demo"
 description: |
-  I want you to reimplement the original OpenAI Codex demo.
+  I want you to reimplement the original Niteo Code demo.
 
   Functionality:
   - User types a prompt and hits enter to send
