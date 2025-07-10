@@ -1,11 +1,11 @@
 <h1 align="center">Niteo Code CLI</h1>
 <p align="center">Lightweight coding agent that runs in your terminal</p>
 
-<p align="center"><code>brew install codex</code></p>
+<p align="center"><code>npm install -g @niteotech/code</code></p>
 
-This is the home of the **Codex CLI**, which is a coding agent from OpenAI that runs locally on your computer. If you are looking for the _cloud-based agent_ from OpenAI, **Codex [Web]**, see <https://chatgpt.com/codex>.
+This is the home of the **Niteo Code CLI**, which is a coding agent powered by Azure OpenAI that runs locally on your computer. It's a customized version of the OpenAI Codex CLI optimized for use with Azure OpenAI services.
 
-<!-- ![Codex demo GIF using: codex "explain this codebase to me"](./.github/demo.gif) -->
+<!-- ![Niteo Code CLI demo GIF using: niteo-code "explain this codebase to me"](./.github/demo.gif) -->
 
 ---
 
@@ -18,7 +18,7 @@ This is the home of the **Codex CLI**, which is a coding agent from OpenAI that 
 - [Quickstart](#quickstart)
   - [OpenAI API Users](#openai-api-users)
   - [OpenAI Plus/Pro Users](#openai-pluspro-users)
-- [Why Codex?](#why-codex)
+- [Why Niteo Code CLI?](#why-niteo-code-cli)
 - [Security model & permissions](#security-model--permissions)
   - [Platform sandboxing details](#platform-sandboxing-details)
 - [System requirements](#system-requirements)
@@ -33,7 +33,7 @@ This is the home of the **Codex CLI**, which is a coding agent from OpenAI that 
 - [Configuration](#configuration)
 - [FAQ](#faq)
 - [Zero data retention (ZDR) usage](#zero-data-retention-zdr-usage)
-- [Codex open source fund](#codex-open-source-fund)
+- [Niteo Code CLI open source fund](#niteo-code-cli-open-source-fund)
 - [Contributing](#contributing)
   - [Development workflow](#development-workflow)
   - [Writing high-impact code changes](#writing-high-impact-code-changes)
@@ -43,7 +43,7 @@ This is the home of the **Codex CLI**, which is a coding agent from OpenAI that 
   - [Getting help](#getting-help)
   - [Contributor license agreement (CLA)](#contributor-license-agreement-cla)
     - [Quick fixes](#quick-fixes)
-  - [Releasing `codex`](#releasing-codex)
+  - [Releasing `niteo-code`](#releasing-niteo-code)
 - [Security & responsible AI](#security--responsible-ai)
 - [License](#license)
 
@@ -55,7 +55,7 @@ This is the home of the **Codex CLI**, which is a coding agent from OpenAI that 
 
 ## Experimental technology disclaimer
 
-Codex CLI is an experimental project under active development. It is not yet stable, may contain bugs, incomplete features, or undergo breaking changes. We're building it in the open with the community and welcome:
+Niteo Code CLI is an experimental project under active development. It is not yet stable, may contain bugs, incomplete features, or undergo breaking changes. We're building it in the open with the community and welcome:
 
 - Bug reports
 - Feature requests
@@ -69,91 +69,107 @@ Help us improve by filing issues or submitting PRs (see the section below for ho
 Install globally:
 
 ```shell
-brew install codex
+npm install -g @niteotech/code
 ```
 
-Or go to the [latest GitHub Release](https://github.com/openai/codex/releases/latest) and download the appropriate binary for your platform.
+Or go to the [latest GitHub Release](https://github.com/heberpereiraniteo/codex/releases/latest) and download the appropriate binary for your platform.
 
-### OpenAI API Users
+### Azure OpenAI Users
 
-Next, set your OpenAI API key as an environment variable:
+This version is pre-configured to work with Azure OpenAI. You can configure it interactively:
+
+```shell
+niteo-code --setup-azure
+```
+
+The setup wizard will guide you through:
+1. Entering your Azure OpenAI API key
+2. Setting your Azure OpenAI base URL
+3. Configuring your model deployment name
+4. Setting the API version
+
+Alternatively, you can set environment variables manually:
+
+```shell
+export AZURE_OPENAI_API_KEY="your-api-key-here"
+export AZURE_OPENAI_BASE_URL="https://your-resource.openai.azure.com"
+export AZURE_OPENAI_MODEL="your-model-deployment"
+export AZURE_OPENAI_API_VERSION="2024-10-01-preview"
+```
+
+> [!NOTE]
+> These commands set the keys only for your current terminal session. You can add the `export` lines to your shell's configuration file (e.g., `~/.zshrc`), or use the setup wizard which saves the configuration automatically.
+
+### OpenAI API Users (Alternative)
+
+If you prefer to use OpenAI directly instead of Azure OpenAI, set your OpenAI API key:
 
 ```shell
 export OPENAI_API_KEY="your-api-key-here"
 ```
 
-> [!NOTE]
-> This command sets the key only for your current terminal session. You can add the `export` line to your shell's configuration file (e.g., `~/.zshrc`), but we recommend setting it for the session.
+Then run with the OpenAI provider:
 
-### OpenAI Plus/Pro Users
-
-If you have a paid OpenAI account, run the following to start the login process:
-
+```shell
+niteo-code --provider openai
 ```
-codex login
-```
-
-If you complete the process successfully, you should have a `~/.codex/auth.json` file that contains the credentials that Codex will use.
-
-If you encounter problems with the login flow, please comment on <https://github.com/openai/codex/issues/1243>.
 
 <details>
 <summary><strong>Use <code>--profile</code> to use other models</strong></summary>
 
-Codex also allows you to use other providers that support the OpenAI Chat Completions (or Responses) API.
+Niteo Code CLI also allows you to use other providers that support the OpenAI Chat Completions (or Responses) API.
 
-To do so, you must first define custom [providers](./config.md#model_providers) in `~/.codex/config.toml`. For example, the provider for a standard Ollama setup would be defined as follows:
+To do so, you must first define custom [providers](./codex-cli/README.md#configuration-guide) in `~/.niteo-code/config.json`. For example, the provider for a standard Ollama setup would be defined as follows:
 
-```toml
-[model_providers.ollama]
-name = "Ollama"
-base_url = "http://localhost:11434/v1"
+```json
+{
+  "providers": {
+    "ollama": {
+      "name": "Ollama",
+      "baseURL": "http://localhost:11434/v1"
+    }
+  }
+}
 ```
 
-The `base_url` will have `/chat/completions` appended to it to build the full URL for the request.
+The `baseURL` will have `/chat/completions` appended to it to build the full URL for the request.
 
-For providers that also require an `Authorization` header of the form `Bearer: SECRET`, an `env_key` can be specified, which indicates the environment variable to read to use as the value of `SECRET` when making a request:
+For providers that also require an `Authorization` header of the form `Bearer: SECRET`, an `envKey` can be specified, which indicates the environment variable to read to use as the value of `SECRET` when making a request:
 
-```toml
-[model_providers.openrouter]
-name = "OpenRouter"
-base_url = "https://openrouter.ai/api/v1"
-env_key = "OPENROUTER_API_KEY"
+```json
+{
+  "providers": {
+    "openrouter": {
+      "name": "OpenRouter",
+      "baseURL": "https://openrouter.ai/api/v1",
+      "envKey": "OPENROUTER_API_KEY"
+    }
+  }
+}
 ```
 
-Providers that speak the Responses API are also supported by adding `wire_api = "responses"` as part of the definition. Accessing OpenAI models via Azure is an example of such a provider, though it also requires specifying additional `query_params` that need to be appended to the request URL:
+Azure OpenAI is pre-configured in this version:
 
-```toml
-[model_providers.azure]
-name = "Azure"
-# Make sure you set the appropriate subdomain for this URL.
-base_url = "https://YOUR_PROJECT_NAME.openai.azure.com/openai"
-env_key = "AZURE_OPENAI_API_KEY"  # Or "OPENAI_API_KEY", whichever you use.
-# Newer versions appear to support the responses API, see https://github.com/openai/codex/pull/1321
-query_params = { api-version = "2025-04-01-preview" }
-wire_api = "responses"
+```json
+{
+  "provider": "azure",
+  "providers": {
+    "azure": {
+      "name": "Azure OpenAI",
+      "baseURL": "https://your-resource.openai.azure.com",
+      "envKey": "AZURE_OPENAI_API_KEY"
+    }
+  }
+}
 ```
 
-Once you have defined a provider you wish to use, you can configure it as your default provider as follows:
+Once you have defined a provider you wish to use, you can configure it as your default provider:
 
-```toml
-model_provider = "azure"
+```json
+{
+  "provider": "azure"
+}
 ```
-
-> [!TIP]
-> If you find yourself experimenting with a variety of models and providers, then you likely want to invest in defining a _profile_ for each configuration like so:
-
-```toml
-[profiles.o3]
-model_provider = "azure"
-model = "o3"
-
-[profiles.mistral]
-model_provider = "ollama"
-model = "mistral"
-```
-
-This way, you can specify one command-line argument (.e.g., `--profile o3`, `--profile mistral`) to override multiple settings together.
 
 </details>
 <br />
@@ -161,33 +177,33 @@ This way, you can specify one command-line argument (.e.g., `--profile o3`, `--p
 Run interactively:
 
 ```shell
-codex
+niteo-code
 ```
 
 Or, run with a prompt as input (and optionally in `Full Auto` mode):
 
 ```shell
-codex "explain this codebase to me"
+niteo-code "explain this codebase to me"
 ```
 
 ```shell
-codex --full-auto "create the fanciest todo-list app"
+niteo-code --full-auto "create the fanciest todo-list app"
 ```
 
-That's it - Codex will scaffold a file, run it inside a sandbox, install any
+That's it - Niteo Code will scaffold a file, run it inside a sandbox, install any
 missing dependencies, and show you the live result. Approve the changes and
 they'll be committed to your working directory.
 
 ---
 
-## Why Codex?
+## Why Niteo Code CLI?
 
-Codex CLI is built for developers who already **live in the terminal** and want
+Niteo Code CLI is built for developers who already **live in the terminal** and want
 ChatGPT-level reasoning **plus** the power to actually run code, manipulate
 files, and iterate - all under version control. In short, it's _chat-driven
 development_ that understands and executes your repo.
 
-- **Zero setup** - bring your OpenAI API key and it just works!
+- **Zero setup** - configured for Azure OpenAI with interactive setup wizard!
 - **Full auto-approval, while safe + secure** by running network-disabled and directory-sandboxed
 - **Multimodal** - pass in screenshots or diagrams to implement features ✨
 
@@ -197,35 +213,35 @@ And it's **fully open-source** so you can see and contribute to how it develops!
 
 ## Security model & permissions
 
-Codex lets you decide _how much autonomy_ you want to grant the agent. The following options can be configured independently:
+Niteo Code CLI lets you decide _how much autonomy_ you want to grant the agent. The following options can be configured independently:
 
-- [`approval_policy`](./codex-rs/config.md#approval_policy) determines when you should be prompted to approve whether Codex can execute a command
-- [`sandbox`](./codex-rs/config.md#sandbox) determines the _sandbox policy_ that Codex uses to execute untrusted commands
+- `approval_policy` determines when you should be prompted to approve whether Niteo Code CLI can execute a command
+- `sandbox` determines the _sandbox policy_ that Niteo Code CLI uses to execute untrusted commands
 
-By default, Codex runs with `approval_policy = "untrusted"` and `sandbox.mode = "read-only"`, which means that:
+By default, Niteo Code CLI runs with `approval_policy = "untrusted"` and `sandbox.mode = "read-only"`, which means that:
 
-- The user is prompted to approve every command not on the set of "trusted" commands built into Codex (`cat`, `ls`, etc.)
+- The user is prompted to approve every command not on the set of "trusted" commands built into Niteo Code CLI (`cat`, `ls`, etc.)
 - Approved commands are run outside of a sandbox because user approval implies "trust," in this case.
 
-Though running Codex with the `--full-auto` option changes the configuration to `approval_policy = "on-failure"` and `sandbox.mode = "workspace-write"`, which means that:
+Though running Niteo Code CLI with the `--full-auto` option changes the configuration to `approval_policy = "on-failure"` and `sandbox.mode = "workspace-write"`, which means that:
 
-- Codex does not initially ask for user approval before running an individual command.
+- Niteo Code CLI does not initially ask for user approval before running an individual command.
 - Though when it runs a command, it is run under a sandbox in which:
   - It can read any file on the system.
   - It can only write files under the current directory (or the directory specified via `--cd`).
   - Network requests are completely disabled.
-- Only if the command exits with a non-zero exit code will it ask the user for approval. If granted, it will re-attempt the command outside of the sandbox. (A common case is when Codex cannot `npm install` a dependency because that requires network access.)
+- Only if the command exits with a non-zero exit code will it ask the user for approval. If granted, it will re-attempt the command outside of the sandbox. (A common case is when Niteo Code CLI cannot `npm install` a dependency because that requires network access.)
 
-Again, these two options can be configured independently. For example, if you want Codex to perform an "exploration" where you are happy for it to read anything it wants but you never want to be prompted, you could run Codex with `approval_policy = "never"` and `sandbox.mode = "read-only"`.
+Again, these two options can be configured independently. For example, if you want Niteo Code CLI to perform an "exploration" where you are happy for it to read anything it wants but you never want to be prompted, you could run Niteo Code CLI with `approval_policy = "never"` and `sandbox.mode = "read-only"`.
 
 ### Platform sandboxing details
 
-The mechanism Codex uses to implement the sandbox policy depends on your OS:
+The mechanism Niteo Code CLI uses to implement the sandbox policy depends on your OS:
 
 - **macOS 12+** uses **Apple Seatbelt** and runs commands using `sandbox-exec` with a profile (`-p`) that corresponds to the `sandbox.mode` that was specified.
 - **Linux** uses a combination of Landlock/seccomp APIs to enforce the `sandbox` configuration.
 
-Note that when running Linux in a containerized environment such as Docker, sandboxing may not work if the host/container configuration does not support the necessary Landlock/seccomp APIs. In such cases, we recommend configuring your Docker container so that it provides the sandbox guarantees you are looking for and then running `codex` with `sandbox.mode = "danger-full-access"` (or more simply, the `--dangerously-bypass-approvals-and-sandbox` flag) within your container.
+Note that when running Linux in a containerized environment such as Docker, sandboxing may not work if the host/container configuration does not support the necessary Landlock/seccomp APIs. In such cases, we recommend configuring your Docker container so that it provides the sandbox guarantees you are looking for and then running `niteo-code` with `sandbox.mode = "danger-full-access"` (or more simply, the `--dangerously-bypass-approvals-and-sandbox` flag) within your container.
 
 ---
 
@@ -241,21 +257,23 @@ Note that when running Linux in a containerized environment such as Docker, sand
 
 ## CLI reference
 
-| Command            | Purpose                            | Example                         |
-| ------------------ | ---------------------------------- | ------------------------------- |
-| `codex`            | Interactive TUI                    | `codex`                         |
-| `codex "..."`      | Initial prompt for interactive TUI | `codex "fix lint errors"`       |
-| `codex exec "..."` | Non-interactive "automation mode"  | `codex exec "explain utils.ts"` |
+| Command                              | Purpose                             | Example                              |
+| ------------------------------------ | ----------------------------------- | ------------------------------------ |
+| `niteo-code`                         | Interactive REPL                    | `niteo-code`                         |
+| `niteo-code "..."`                   | Initial prompt for interactive REPL | `niteo-code "fix lint errors"`       |
+| `niteo-code -q "..."`                | Non-interactive "quiet mode"        | `niteo-code -q "explain utils.ts"`   |
+| `niteo-code --setup-azure`           | Interactive Azure OpenAI setup      | `niteo-code --setup-azure`          |
+| `niteo-code completion <bash\|zsh\|fish>` | Print shell completion script   | `niteo-code completion bash`         |
 
-Key flags: `--model/-m`, `--ask-for-approval/-a`.
+Key flags: `--model/-m`, `--provider/-p`, `--approval-mode/-a`, `--quiet/-q`, `--setup-azure`, and `--notify`.
 
 ---
 
 ## Memory & project docs
 
-You can give Codex extra instructions and guidance using `AGENTS.md` files. Codex looks for `AGENTS.md` files in the following places, and merges them top-down:
+You can give Niteo Code CLI extra instructions and guidance using `AGENTS.md` files. Niteo Code CLI looks for `AGENTS.md` files in the following places, and merges them top-down:
 
-1. `~/.codex/AGENTS.md` - personal global guidance
+1. `~/.niteo-code/AGENTS.md` - personal global guidance
 2. `AGENTS.md` at repo root - shared project notes
 3. `AGENTS.md` in the current working directory - sub-folder/feature specifics
 
@@ -263,73 +281,73 @@ You can give Codex extra instructions and guidance using `AGENTS.md` files. Code
 
 ## Non-interactive / CI mode
 
-Run Codex head-less in pipelines. Example GitHub Action step:
+Run Niteo Code CLI head-less in pipelines. Example GitHub Action step:
 
 ```yaml
-- name: Update changelog via Codex
+- name: Update changelog via Niteo Code CLI
   run: |
-    npm install -g @openai/codex@native  # Note: we plan to drop the need for `@native`.
-    export OPENAI_API_KEY="${{ secrets.OPENAI_KEY }}"
-    codex exec --full-auto "update CHANGELOG for next release"
+    npm install -g @niteotech/code
+    export AZURE_OPENAI_API_KEY="${{ secrets.AZURE_OPENAI_API_KEY }}"
+    export AZURE_OPENAI_BASE_URL="${{ secrets.AZURE_OPENAI_BASE_URL }}"
+    export AZURE_OPENAI_MODEL="${{ secrets.AZURE_OPENAI_MODEL }}"
+    niteo-code --full-auto "update CHANGELOG for next release"
 ```
 
 ## Model Context Protocol (MCP)
 
-The Codex CLI can be configured to leverage MCP servers by defining an [`mcp_servers`](./codex-rs/config.md#mcp_servers) section in `~/.codex/config.toml`. It is intended to mirror how tools such as Claude and Cursor define `mcpServers` in their respective JSON config files, though the Codex format is slightly different since it uses TOML rather than JSON, e.g.:
+The Niteo Code CLI can be configured to leverage MCP servers by defining an `mcp_servers` section in `~/.niteo-code/config.json`. For example:
 
-```toml
-# IMPORTANT: the top-level key is `mcp_servers` rather than `mcpServers`.
-[mcp_servers.server-name]
-command = "npx"
-args = ["-y", "mcp-server"]
-env = { "API_KEY" = "value" }
+```json
+{
+  "mcp_servers": {
+    "server-name": {
+      "command": "npx",
+      "args": ["-y", "mcp-server"],
+      "env": { "API_KEY": "value" }
+    }
+  }
+}
 ```
 
 > [!TIP]
-> It is somewhat experimental, but the Codex CLI can also be run as an MCP _server_ via `codex mcp`. If you launch it with an MCP client such as `npx @modelcontextprotocol/inspector codex mcp` and send it a `tools/list` request, you will see that there is only one tool, `codex`, that accepts a grab-bag of inputs, including a catch-all `config` map for anything you might want to override. Feel free to play around with it and provide feedback via GitHub issues.
+> It is somewhat experimental, but the Niteo Code CLI can also be run as an MCP _server_ via `niteo-code mcp`. Feel free to play around with it and provide feedback via GitHub issues.
 
 ## Tracing / verbose logging
 
-Because Codex is written in Rust, it honors the `RUST_LOG` environment variable to configure its logging behavior.
-
-The TUI defaults to `RUST_LOG=codex_core=info,codex_tui=info` and log messages are written to `~/.codex/log/codex-tui.log`, so you can leave the following running in a separate terminal to monitor log messages as they are written:
+The Niteo Code CLI honors standard logging practices. For detailed logging, you can check the log files in `~/.niteo-code/log/` directory.
 
 ```
-tail -F ~/.codex/log/codex-tui.log
+tail -F ~/.niteo-code/log/niteo-code.log
 ```
-
-By comparison, the non-interactive mode (`codex exec`) defaults to `RUST_LOG=error`, but messages are printed inline, so there is no need to monitor a separate file.
-
-See the Rust documentation on [`RUST_LOG`](https://docs.rs/env_logger/latest/env_logger/#enabling-logging) for more information on the configuration options.
 
 ---
 
 ## Recipes
 
-Below are a few bite-size examples you can copy-paste. Replace the text in quotes with your own task. See the [prompting guide](https://github.com/openai/codex/blob/main/codex-cli/examples/prompting_guide.md) for more tips and usage patterns.
+Below are a few bite-size examples you can copy-paste. Replace the text in quotes with your own task. See the [prompting guide](https://github.com/heberpereiraniteo/codex/blob/main/codex-cli/examples/prompting_guide.md) for more tips and usage patterns.
 
 | ✨  | What you type                                                                   | What happens                                                               |
 | --- | ------------------------------------------------------------------------------- | -------------------------------------------------------------------------- |
-| 1   | `codex "Refactor the Dashboard component to React Hooks"`                       | Codex rewrites the class component, runs `npm test`, and shows the diff.   |
-| 2   | `codex "Generate SQL migrations for adding a users table"`                      | Infers your ORM, creates migration files, and runs them in a sandboxed DB. |
-| 3   | `codex "Write unit tests for utils/date.ts"`                                    | Generates tests, executes them, and iterates until they pass.              |
-| 4   | `codex "Bulk-rename *.jpeg -> *.jpg with git mv"`                               | Safely renames files and updates imports/usages.                           |
-| 5   | `codex "Explain what this regex does: ^(?=.*[A-Z]).{8,}$"`                      | Outputs a step-by-step human explanation.                                  |
-| 6   | `codex "Carefully review this repo, and propose 3 high impact well-scoped PRs"` | Suggests impactful PRs in the current codebase.                            |
-| 7   | `codex "Look for vulnerabilities and create a security review report"`          | Finds and explains security bugs.                                          |
+| 1   | `niteo-code "Refactor the Dashboard component to React Hooks"`                 | Niteo Code CLI rewrites the class component, runs `npm test`, and shows the diff.   |
+| 2   | `niteo-code "Generate SQL migrations for adding a users table"`                | Infers your ORM, creates migration files, and runs them in a sandboxed DB. |
+| 3   | `niteo-code "Write unit tests for utils/date.ts"`                              | Generates tests, executes them, and iterates until they pass.              |
+| 4   | `niteo-code "Bulk-rename *.jpeg -> *.jpg with git mv"`                         | Safely renames files and updates imports/usages.                           |
+| 5   | `niteo-code "Explain what this regex does: ^(?=.*[A-Z]).{8,}$"`                | Outputs a step-by-step human explanation.                                  |
+| 6   | `niteo-code "Carefully review this repo, and propose 3 high impact well-scoped PRs"` | Suggests impactful PRs in the current codebase.                            |
+| 7   | `niteo-code "Look for vulnerabilities and create a security review report"`    | Finds and explains security bugs.                                          |
 
 ---
 
 ## Installation
 
 <details open>
-<summary><strong>From brew (Recommended)</strong></summary>
+<summary><strong>From npm (Recommended)</strong></summary>
 
 ```bash
-brew install codex
+npm install -g @niteotech/code
 ```
 
-Or go to the [latest GitHub Release](https://github.com/openai/codex/releases/latest) and download the appropriate binary for your platform.
+Or go to the [latest GitHub Release](https://github.com/heberpereiraniteo/codex/releases/latest) and download the appropriate binary for your platform.
 
 Admittedly, each GitHub Release contains many executables, but in practice, you likely want one of these:
 
@@ -351,29 +369,29 @@ The GitHub Release also contains a [DotSlash](https://dotslash-cli.com/) file fo
 <details>
 <summary><strong>Build from source</strong></summary>
 
-```bash
-# Clone the repository and navigate to the root of the Cargo workspace.
-git clone https://github.com/openai/codex.git
-cd codex/codex-rs
+```shell
+# Clone the repository and navigate to the root of the project.
+git clone https://github.com/heberpereiraniteo/codex.git
+cd codex/codex-cli
 
-# Install the Rust toolchain, if necessary.
-curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y
-source "$HOME/.cargo/env"
-rustup component add rustfmt
-rustup component add clippy
+# Install dependencies
+npm install
 
-# Build Codex.
-cargo build
+# Build the project
+npm run build
 
-# Launch the TUI with a sample prompt.
-cargo run --bin codex -- "explain this codebase to me"
+# Link for global use
+npm link
+
+# Test the CLI
+niteo-code "explain this codebase to me"
 
 # After making changes, ensure the code is clean.
-cargo fmt -- --config imports_granularity=Item
-cargo clippy --tests
+npm run format:fix
+npm run lint:fix
 
 # Run the tests.
-cargo test
+npm test
 ```
 
 </details>
@@ -382,20 +400,59 @@ cargo test
 
 ## Configuration
 
-Codex supports a rich set of configuration options documented in [`codex-rs/config.md`](./codex-rs/config.md).
+Niteo Code CLI supports a rich set of configuration options documented in [`codex-cli/README.md`](./codex-cli/README.md#configuration-guide).
 
-By default, Codex loads its configuration from `~/.codex/config.toml`.
+By default, Niteo Code CLI loads its configuration from `~/.niteo-code/config.json`.
 
-Though `--config` can be used to set/override ad-hoc config values for individual invocations of `codex`.
+You can also use the interactive setup wizard:
+
+```shell
+niteo-code --setup-azure
+```
 
 ---
 
 ## FAQ
 
 <details>
+<summary>How do I configure Azure OpenAI?</summary>
+
+This version is pre-configured to work with Azure OpenAI. The easiest way is to use the interactive setup wizard:
+
+```shell
+niteo-code --setup-azure
+```
+
+The wizard will guide you through all the necessary steps and save the configuration automatically.
+
+Alternatively, you can set environment variables manually:
+
+```shell
+export AZURE_OPENAI_API_KEY="your-api-key"
+export AZURE_OPENAI_BASE_URL="https://your-resource.openai.azure.com"
+export AZURE_OPENAI_MODEL="your-model-deployment"
+export AZURE_OPENAI_API_VERSION="2024-10-01-preview"
+```
+
+</details>
+
+<details>
+<summary>What if I see "Azure OpenAI not configured"?</summary>
+
+This message appears when the CLI can't find Azure OpenAI configurations. Run the setup wizard:
+
+```shell
+niteo-code --setup-azure
+```
+
+The wizard will configure everything automatically for you.
+
+</details>
+
+<details>
 <summary>OpenAI released a model called Codex in 2021 - is this related?</summary>
 
-In 2021, OpenAI released Codex, an AI system designed to generate code from natural language prompts. That original Codex model was deprecated as of March 2023 and is separate from the CLI tool.
+In 2021, OpenAI released Codex, an AI system designed to generate code from natural language prompts. That original Codex model was deprecated as of March 2023. This CLI tool is based on the OpenAI Codex CLI but has been customized for use with Azure OpenAI services.
 
 </details>
 
@@ -413,15 +470,15 @@ It's possible that your [API account needs to be verified](https://help.openai.c
 </details>
 
 <details>
-<summary>How do I stop Codex from editing my files?</summary>
+<summary>How do I stop Niteo Code CLI from editing my files?</summary>
 
-Codex runs model-generated commands in a sandbox. If a proposed command or file change doesn't look right, you can simply type **n** to deny the command or give the model feedback.
+Niteo Code CLI runs model-generated commands in a sandbox. If a proposed command or file change doesn't look right, you can simply type **n** to deny the command or give the model feedback.
 
 </details>
 <details>
 <summary>Does it work on Windows?</summary>
 
-Not directly. It requires [Windows Subsystem for Linux (WSL2)](https://learn.microsoft.com/en-us/windows/wsl/install) - Codex has been tested on macOS and Linux with Node 22.
+Not directly. It requires [Windows Subsystem for Linux (WSL2)](https://learn.microsoft.com/en-us/windows/wsl/install) - Niteo Code CLI has been tested on macOS and Linux with Node 22.
 
 </details>
 
@@ -429,30 +486,32 @@ Not directly. It requires [Windows Subsystem for Linux (WSL2)](https://learn.mic
 
 ## Zero data retention (ZDR) usage
 
-Codex CLI **does** support OpenAI organizations with [Zero Data Retention (ZDR)](https://platform.openai.com/docs/guides/your-data#zero-data-retention) enabled. If your OpenAI organization has Zero Data Retention enabled and you still encounter errors such as:
+Niteo Code CLI **does** support OpenAI organizations with [Zero Data Retention (ZDR)](https://platform.openai.com/docs/guides/your-data#zero-data-retention) enabled. If your OpenAI organization has Zero Data Retention enabled and you still encounter errors such as:
 
 ```
 OpenAI rejected the request. Error details: Status: 400, Code: unsupported_parameter, Type: invalid_request_error, Message: 400 Previous response cannot be used for this organization due to Zero Data Retention.
 ```
 
-Ensure you are running `codex` with `--config disable_response_storage=true` or add this line to `~/.codex/config.toml` to avoid specifying the command line option each time:
+Ensure you are running `niteo-code` with `--config disable_response_storage=true` or add this line to `~/.niteo-code/config.json` to avoid specifying the command line option each time:
 
-```toml
-disable_response_storage = true
+```json
+{
+  "disable_response_storage": true
+}
 ```
 
-See [the configuration documentation on `disable_response_storage`](./codex-rs/config.md#disable_response_storage) for details.
+See [the configuration documentation](./codex-cli/README.md#configuration-guide) for details.
 
 ---
 
-## Codex open source fund
+## Niteo Code CLI open source fund
 
-We're excited to launch a **$1 million initiative** supporting open source projects that use Codex CLI and other OpenAI models.
+We're excited to support open source projects that use Niteo Code CLI and Azure OpenAI models.
 
-- Grants are awarded up to **$25,000** API credits.
+- Support is provided for valid open source projects.
 - Applications are reviewed **on a rolling basis**.
 
-**Interested? [Apply here](https://openai.com/form/codex-open-source-fund/).**
+**Interested? [Contact us](https://github.com/heberpereiraniteo/codex/issues).**
 
 ---
 
@@ -498,7 +557,7 @@ More broadly we welcome contributions - whether you are opening your very first 
 
 If you run into problems setting up the project, would like feedback on an idea, or just want to say _hi_ - please open a Discussion or jump into the relevant issue. We are happy to help.
 
-Together we can make Codex CLI an incredible tool. **Happy hacking!** :rocket:
+Together we can make Niteo Code CLI an incredible tool. **Happy hacking!** :rocket:
 
 ### Contributor license agreement (CLA)
 
@@ -523,24 +582,21 @@ No special Git commands, email attachments, or commit footers required.
 
 The **DCO check** blocks merges until every commit in the PR carries the footer (with squash this is just the one).
 
-### Releasing `codex`
+### Releasing `niteo-code`
 
 _For admins only._
 
-Make sure you are on `main` and have no local changes. Then run:
+Make sure you are on the main branch and have no local changes. Then run:
 
 ```shell
-VERSION=0.2.0  # Can also be 0.2.0-alpha.1 or any valid Rust version.
-./codex-rs/scripts/create_github_release.sh "$VERSION"
+VERSION=0.0.6  # Increment version number
+cd codex-cli
+npm version $VERSION
+npm run build
+npm publish
 ```
 
-This will make a local commit on top of `main` with `version` set to `$VERSION` in `codex-rs/Cargo.toml` (note that on `main`, we leave the version as `version = "0.0.0"`).
-
-This will push the commit using the tag `rust-v${VERSION}`, which in turn kicks off [the release workflow](.github/workflows/rust-release.yml). This will create a new GitHub Release named `$VERSION`.
-
-If everything looks good in the generated GitHub Release, uncheck the **pre-release** box so it is the latest release.
-
-Create a PR to update [`Formula/c/codex.rb`](https://github.com/Homebrew/homebrew-core/blob/main/Formula/c/codex.rb) on Homebrew.
+This will publish the new version to npm registry.
 
 ---
 
