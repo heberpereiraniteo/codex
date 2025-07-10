@@ -7,7 +7,7 @@ import os from "os";
 import path from "path";
 import React, { useEffect, useState } from "react";
 
-const SESSIONS_ROOT = path.join(os.homedir(), ".codex", "sessions");
+const SESSIONS_ROOT = path.join(os.homedir(), ".niteo-code", "sessions");
 
 export type SessionMeta = {
   path: string;

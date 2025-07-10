@@ -127,7 +127,7 @@ impl EventProcessor {
         const VERSION: &str = env!("CARGO_PKG_VERSION");
         ts_println!(
             self,
-            "OpenAI Codex v{} (research preview)\n--------",
+            "Niteo Code v{} (research preview)\n--------",
             VERSION
         );
 

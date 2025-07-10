@@ -77,7 +77,26 @@ npm install -g @niteotech/code
 
 ### Configuração com Azure OpenAI
 
-Este pacote está configurado para funcionar com Azure OpenAI. Configure as seguintes variáveis de ambiente:
+Este pacote está configurado para funcionar com Azure OpenAI. Você pode configurar de forma interativa ou manual.
+
+#### Configuração Interativa (Recomendado)
+
+Execute o wizard de configuração que irá guiá-lo através de todas as etapas:
+
+```shell
+niteo-code --setup-azure
+```
+
+O wizard irá:
+1. Solicitar sua chave API do Azure OpenAI
+2. Pedir a URL base do seu recurso Azure
+3. Configurar o nome do modelo/deployment
+4. Definir a versão da API
+5. Salvar automaticamente em `~/.niteo-code/config.json` e `~/.niteo-code.env`
+
+#### Configuração Manual
+
+Alternativamente, configure manualmente as seguintes variáveis de ambiente:
 
 ```shell
 export AZURE_OPENAI_API_KEY="sua-chave-api-azure-aqui"
@@ -88,7 +107,7 @@ export AZURE_OPENAI_BASE_URL="https://sua-instancia.cognitiveservices.azure.com/
 
 > **Nota:** Substitua `sua-chave-api-azure-aqui` pela sua chave API do Azure OpenAI e `sua-instancia` pelo nome da sua instância do Azure Cognitive Services.
 
-Alternativamente, você pode criar um arquivo `.env` na raiz do seu projeto:
+Ou crie um arquivo `.env` na raiz do seu projeto:
 
 ```env
 AZURE_OPENAI_API_KEY=sua-chave-api-azure-aqui
@@ -238,9 +257,10 @@ The hardening mechanism Codex uses depends on your OS:
 | `niteo-code`                         | Interactive REPL                    | `niteo-code`                         |
 | `niteo-code "..."`                   | Initial prompt for interactive REPL | `niteo-code "fix lint errors"`      |
 | `niteo-code -q "..."`                | Non-interactive "quiet mode"        | `niteo-code -q --json "explain utils.ts"` |
+| `niteo-code --setup-azure`           | Interactive Azure OpenAI setup      | `niteo-code --setup-azure`          |
 | `niteo-code completion <bash\|zsh\|fish>` | Print shell completion script       | `niteo-code completion bash`         |
 
-Key flags: `--model/-m`, `--approval-mode/-a`, `--quiet/-q`, and `--notify`.
+Key flags: `--model/-m`, `--provider/-p`, `--approval-mode/-a`, `--quiet/-q`, `--setup-azure`, and `--notify`.
 
 ---
 
@@ -248,7 +268,7 @@ Key flags: `--model/-m`, `--approval-mode/-a`, `--quiet/-q`, and `--notify`.
 
 You can give Codex extra instructions and guidance using `AGENTS.md` files. Codex looks for `AGENTS.md` files in the following places, and merges them top-down:
 
-1. `~/.codex/AGENTS.md` - personal global guidance
+1. `~/.niteo-code/AGENTS.md` - personal global guidance
 2. `AGENTS.md` at repo root - shared project notes
 3. `AGENTS.md` in the current working directory - sub-folder/feature specifics
 
@@ -350,7 +370,7 @@ pnpm link
 
 ## Configuration guide
 
-Codex configuration files can be placed in the `~/.codex/` directory, supporting both YAML and JSON formats.
+Codex configuration files can be placed in the `~/.niteo-code/` directory, supporting both YAML and JSON formats.
 
 ### Basic configuration parameters
 
@@ -384,7 +404,7 @@ In the `history` object, you can configure conversation history settings:
 
 ### Configuration examples
 
-1. YAML format (save as `~/.codex/config.yaml`):
+1. YAML format (save as `~/.niteo-code/config.yaml`):
 
 ```yaml
 model: codex-mini
@@ -394,7 +414,7 @@ fullAutoErrorMode: ask-user
 notify: true
 ```
 
-2. JSON format (save as `~/.codex/config.json`):
+2. JSON format (save as `~/.niteo-code/config.json`):
 
 ```json
 {
@@ -476,7 +496,7 @@ Below is a comprehensive example of `config.json` with multiple custom providers
 
 ### Custom instructions
 
-You can create a `~/.codex/AGENTS.md` file to define custom guidance for the agent:
+You can create a `~/.niteo-code/AGENTS.md` file to define custom guidance for the agent:
 
 ```markdown
 - Always respond with emojis
@@ -510,7 +530,15 @@ export OPENROUTER_API_KEY="sua-chave-openrouter-aqui"
 <details>
 <summary>Como configurar para usar Azure OpenAI?</summary>
 
-Esta versão está pré-configurada para usar Azure OpenAI. Configure as seguintes variáveis de ambiente:
+Esta versão está pré-configurada para usar Azure OpenAI. A forma mais fácil é usar o wizard interativo:
+
+```bash
+niteo-code --setup-azure
+```
+
+O wizard irá guiá-lo através de todas as etapas necessárias e salvar a configuração automaticamente.
+
+Alternativamente, configure manualmente as seguintes variáveis de ambiente:
 
 ```bash
 export AZURE_OPENAI_API_KEY="sua-chave-api-azure"
@@ -520,6 +548,19 @@ export AZURE_OPENAI_BASE_URL="https://sua-instancia.cognitiveservices.azure.com/
 ```
 
 Certifique-se de que o modelo especificado está disponível na sua instância do Azure.
+
+</details>
+
+<details>
+<summary>O que fazer se aparecer "Azure OpenAI not configured"?</summary>
+
+Esta mensagem aparece quando o CLI não encontra as configurações do Azure OpenAI. Execute o wizard de configuração:
+
+```bash
+niteo-code --setup-azure
+```
+
+O wizard irá configurar tudo automaticamente para você. Se preferir configurar manualmente, defina as variáveis de ambiente necessárias conforme mostrado na documentação.
 
 </details>
 

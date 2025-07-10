@@ -19,7 +19,7 @@ import { homedir } from "os";
 import { dirname, join, extname, resolve as resolvePath } from "path";
 
 // ---------------------------------------------------------------------------
-// User‑wide environment config (~/.codex.env)
+// User‑wide environment config (~/.niteo-code.env)
 // ---------------------------------------------------------------------------
 
 // Load a user‑level dotenv file **after** process.env and any project‑local
@@ -28,13 +28,13 @@ import { dirname, join, extname, resolve as resolvePath } from "path";
 // the precedence order becomes:
 //   1. Explicit environment variables
 //   2. Project‑local .env (handled in cli.tsx)
-//   3. User‑wide ~/.codex.env (loaded here)
+//   3. User‑wide ~/.niteo-code.env (loaded here)
 // This guarantees that users can still override the global key on a per‑project
 // basis while enjoying the convenience of a persistent default.
 
 // Skip when running inside Vitest to avoid interfering with the FS mocks used
 // by tests that stub out `fs` *after* importing this module.
-const USER_WIDE_CONFIG_PATH = join(homedir(), ".codex.env");
+const USER_WIDE_CONFIG_PATH = join(homedir(), ".niteo-code.env");
 
 const isVitest =
   typeof (globalThis as { vitest?: unknown }).vitest !== "undefined";
@@ -52,7 +52,7 @@ export const DEFAULT_INSTRUCTIONS = "";
 export const DEFAULT_SHELL_MAX_BYTES = 1024 * 10; // 10 KB
 export const DEFAULT_SHELL_MAX_LINES = 256;
 
-export const CONFIG_DIR = join(homedir(), ".codex");
+export const CONFIG_DIR = join(homedir(), ".niteo-code");
 export const CONFIG_JSON_FILEPATH = join(CONFIG_DIR, "config.json");
 export const CONFIG_YAML_FILEPATH = join(CONFIG_DIR, "config.yaml");
 export const CONFIG_YML_FILEPATH = join(CONFIG_DIR, "config.yml");
@@ -234,7 +234,7 @@ export const PROJECT_DOC_MAX_BYTES = 32 * 1024; // 32 kB
 const PROJECT_DOC_FILENAMES = [
   "AGENTS.md", // preferred
   "codex.md", // legacy
-  ".codex.md",
+  ".niteo-code.md",
   "CODEX.md",
 ];
 const PROJECT_DOC_SEPARATOR = "\n\n--- project-doc ---\n\n";
@@ -444,7 +444,7 @@ export const loadConfig = (
   // -----------------------------------------------------------------------
   // First‑run bootstrap: if the configuration file (and/or its containing
   // directory) didn't exist we create them now so that users end up with a
-  // materialised ~/.codex/config.json file on first execution.  This mirrors
+  // materialised ~/.niteo-code/config.json file on first execution.  This mirrors
   // what `saveConfig()` would do but without requiring callers to remember to
   // invoke it separately.
   //

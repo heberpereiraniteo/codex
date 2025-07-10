@@ -86,7 +86,15 @@ async function detectSandboxExecutable(): Promise<string> {
   try {
     await fs.promises.access(candidate, fs.constants.X_OK);
   } catch {
-    throw new Error(`${candidate} not found or not executable`);
+    // For development/custom builds, suggest running without sandbox
+    const msg = `${candidate} not found or not executable.
+
+For development use, you can run commands without sandboxing by setting:
+  export CODEX_UNSAFE_ALLOW_NO_SANDBOX=1
+
+Or install the native dependencies with:
+  cd ${dir} && ./scripts/install_native_deps.sh`;
+    throw new Error(msg);
   }
 
   // Will throw if the executable is not working in this environment.

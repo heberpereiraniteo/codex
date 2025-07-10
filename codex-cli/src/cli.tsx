@@ -7,7 +7,7 @@ if (major < 22) {
   // eslint-disable-next-line no-console
   console.error(
     "\n" +
-      "Codex CLI requires Node.js version 22 or newer.\n" +
+      "niteo-code CLI requires Node.js version 22 or newer.\n" +
       `You are running Node.js v${process.versions.node}.\n` +
       "Please upgrade Node.js: https://nodejs.org/en/download/\n",
   );
@@ -68,20 +68,21 @@ initLogger();
 const cli = meow(
   `
   Usage
-    $ codex [options] <prompt>
-    $ codex completion <bash|zsh|fish>
+    $ niteo-code [options] <prompt>
+    $ niteo-code completion <bash|zsh|fish>
 
   Options
     --version                       Print version and exit
 
     -h, --help                      Show usage and exit
     -m, --model <model>             Model to use for completions (default: codex-mini-latest)
-    -p, --provider <provider>       Provider to use for completions (default: openai)
+    -p, --provider <provider>       Provider to use for completions (default: azure)
     -i, --image <path>              Path(s) to image files to include as input
     -v, --view <rollout>            Inspect a previously saved rollout instead of starting a session
     --history                       Browse previous sessions
     --login                         Start a new sign in flow
     --free                          Retry redeeming free credits
+    --setup-azure                   Interactive Azure OpenAI setup wizard
     -q, --quiet                     Non-interactive mode that only prints the assistant's final output
     -c, --config                    Open the instructions file in your editor
     -w, --writable-root <path>      Writable folder for sandbox in full-auto mode (can be specified multiple times)
@@ -114,9 +115,9 @@ const cli = meow(
                                with all other flags, except for --model.
 
   Examples
-    $ codex "Write and run a python program that prints ASCII art"
-    $ codex -q "fix build issues"
-    $ codex completion bash
+    $ niteo-code "Write and run a python program that prints ASCII art"
+    $ niteo-code -q "fix build issues"
+    $ niteo-code completion bash
 `,
   {
     importMeta: import.meta,
@@ -129,6 +130,7 @@ const cli = meow(
       history: { type: "boolean", description: "Browse previous sessions" },
       login: { type: "boolean", description: "Force a new sign in flow" },
       free: { type: "boolean", description: "Retry redeeming free credits" },
+      setupAzure: { type: "boolean", description: "Interactive Azure OpenAI setup wizard" },
       model: { type: "string", aliases: ["m"] },
       provider: { type: "string", aliases: ["p"] },
       image: { type: "string", isMultiple: true, aliases: ["i"] },
@@ -160,7 +162,7 @@ const cli = meow(
         type: "string",
         aliases: ["a"],
         description:
-          "Determine the approval mode for Codex (default: suggest) Values: suggest, auto-edit, full-auto",
+          "Determine the approval mode for niteo-code (default: suggest) Values: suggest, auto-edit, full-auto",
       },
       writableRoot: {
         type: "string",
@@ -226,7 +228,7 @@ const cli = meow(
 if (cli.input[0] === "completion") {
   const shell = cli.input[1] || "bash";
   const scripts: Record<string, string> = {
-    bash: `# bash completion for codex
+    bash: `# bash completion for niteo-code
 _codex_completion() {
   local cur
   cur="\${COMP_WORDS[COMP_CWORD]}"
@@ -274,6 +276,13 @@ if (cli.flags.config) {
   process.exit(0);
 }
 
+// For --setup-azure, run Azure OpenAI configuration wizard and exit.
+if (cli.flags.setupAzure) {
+  const { setupAzureOpenAI } = await import("./utils/azure-setup.js");
+  const success = await setupAzureOpenAI();
+  process.exit(success ? 0 : 1);
+}
+
 // ---------------------------------------------------------------------------
 // API key handling
 // ---------------------------------------------------------------------------
@@ -292,7 +301,7 @@ let config = loadConfig(undefined, undefined, {
 let prompt = cli.input[0];
 const model = cli.flags.model ?? config.model;
 const imagePaths = cli.flags.image;
-const provider = cli.flags.provider ?? config.provider ?? "openai";
+const provider = cli.flags.provider ?? config.provider ?? "azure";
 
 const client = {
   issuer: "https://auth.openai.com",
@@ -311,7 +320,7 @@ let savedTokens:
 // Try to load existing auth file if present
 try {
   const home = os.homedir();
-  const authDir = path.join(home, ".codex");
+  const authDir = path.join(home, ".niteo-code");
   const authFile = path.join(authDir, "auth.json");
   if (fs.existsSync(authFile)) {
     const data = JSON.parse(fs.readFileSync(authFile, "utf-8"));
@@ -337,6 +346,27 @@ if (provider.toLowerCase() !== "openai") {
       apiKey = providerApiKey;
     }
   }
+  
+  // If using Azure and no API key, suggest setup
+  if (provider.toLowerCase() === "azure" && !apiKey) {
+    const { checkAzureConfig } = await import("./utils/azure-setup.js");
+    const azureStatus = checkAzureConfig();
+    if (!azureStatus.hasEnvVars) {
+      // eslint-disable-next-line no-console
+      console.log(chalk.yellow("⚠️  Azure OpenAI not configured."));
+      // eslint-disable-next-line no-console
+      console.log(chalk.dim("Run the setup wizard: ") + chalk.cyan("niteo-code --setup-azure"));
+      // eslint-disable-next-line no-console
+      console.log(chalk.dim("Or set environment variables manually:"));
+      // eslint-disable-next-line no-console
+      console.log(chalk.dim("  export AZURE_OPENAI_API_KEY=\"your-key\""));
+      // eslint-disable-next-line no-console
+      console.log(chalk.dim("  export AZURE_OPENAI_BASE_URL=\"https://your-resource.openai.azure.com\""));
+      // eslint-disable-next-line no-console
+      console.log(chalk.dim("  export AZURE_OPENAI_MODEL=\"your-model-deployment\""));
+      process.exit(1);
+    }
+  }
 }
 
 // Only proceed with OpenAI auth flow if:
@@ -347,7 +377,7 @@ if (provider.toLowerCase() === "openai" && !apiKey) {
     apiKey = await fetchApiKey(client.issuer, client.client_id);
     try {
       const home = os.homedir();
-      const authDir = path.join(home, ".codex");
+      const authDir = path.join(home, ".niteo-code");
       const authFile = path.join(authDir, "auth.json");
       if (fs.existsSync(authFile)) {
         const data = JSON.parse(fs.readFileSync(authFile, "utf-8"));
@@ -367,7 +397,7 @@ process.env["OPENAI_API_KEY"] = apiKey;
 // Only attempt credit redemption for OpenAI provider
 if (cli.flags.free && provider.toLowerCase() === "openai") {
   // eslint-disable-next-line no-console
-  console.log(`${chalk.bold("codex --free")} attempting to redeem credits...`);
+  console.log(`${chalk.bold("niteo-code --free")} attempting to redeem credits...`);
   if (!savedTokens?.refresh_token) {
     apiKey = await fetchApiKey(client.issuer, client.client_id, true);
     // fetchApiKey includes credit redemption as the end of the flow
@@ -586,7 +616,7 @@ if (cli.flags.quiet) {
 //    it is more dangerous than --fullAuto we deliberately give it lower
 //    priority so a user specifying both flags still gets the safer behaviour.
 // 3. --autoEdit – automatically approve edits, but prompt for commands.
-// 4. config.approvalMode - use the approvalMode setting from ~/.codex/config.json.
+// 4. config.approvalMode - use the approvalMode setting from ~/.niteo-code/config.json.
 // 5. Default – suggest mode (prompt for everything).
 
 const approvalPolicy: ApprovalPolicy =
