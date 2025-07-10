@@ -145,7 +145,7 @@ async function maybeRedeemCredits(
         if (refreshData.refresh_token) {
           try {
             const home = os.homedir();
-            const authDir = path.join(home, ".codex");
+            const authDir = path.join(home, ".niteo-code");
             const authFile = path.join(authDir, "auth.json");
             const existingJson = JSON.parse(
               await fs.readFile(authFile, "utf-8"),
@@ -420,7 +420,7 @@ async function handleCallback(
 
   try {
     const home = os.homedir();
-    const authDir = path.join(home, ".codex");
+    const authDir = path.join(home, ".niteo-code");
     await fs.mkdir(authDir, { recursive: true });
     const authFile = path.join(authDir, "auth.json");
     const authData = {

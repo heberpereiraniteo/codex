@@ -45,7 +45,7 @@ function loadPromptHistory(): Array<string> {
     if (process && process.env && process.env["HOME"]) {
       const p = path.join(
         process.env["HOME"],
-        ".codex_singlepass_history.json",
+        ".niteo-code_singlepass_history.json",
       );
       if (fsSync.existsSync(p)) {
         return JSON.parse(fsSync.readFileSync(p, "utf8"));
@@ -70,7 +70,7 @@ function savePromptHistory(history: Array<string>) {
     if (process && process.env && process.env["HOME"]) {
       const p = path.join(
         process.env["HOME"],
-        ".codex_singlepass_history.json",
+        ".niteo-code_singlepass_history.json",
       );
       fsSync.writeFileSync(p, JSON.stringify(history), "utf8");
     }
